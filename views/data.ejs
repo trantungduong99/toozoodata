@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Login Register App</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/main.css">
+	
+	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+	<script>
+		
+		//handleSignMessage = async ({publicAddress,nonce	}: {publicAddress;nonce;}) => 
+		async function handleSignMessage(publicAddress,nonce,web3){
+			try {
+			console.log("Data: ",publicAddress, nonce);
+			const signature = await web3.eth.personal.sign(
+				`I am signing my one-time nonce: ${nonce}`,
+				publicAddress,
+				'' // MetaMask will ignore the password argument here
+			);
+
+			return { publicAddress, signature };
+			} catch (err) {
+				console.log(JSON.stringify(err));
+			throw new Error('You need to sign the message to be able to log in.');
+			}
+		};
+		//let web3Instance: Web3 | undefined = undefined; // Will hold the web3 instance
+		$(document).ready(function(){
+			var currentUserName = "<%= username %>";
+			var currentPublicAddress = "<%= publicAddress %>";
+			var currentNonce = "<%= nonce %>";
+			console.log("DATAA ", currentUserName, currentPublicAddress);
+			async function getAddress() {
+				// Check if MetaMask is installed
+		
+				console.log("AJKSHVJ");
+				await window.ethereum.enable();
+				const web3 = new Web3(window.ethereum);
+			
+
+				const loggersAC = await web3.eth.getAccounts(console.log);
+
+				const network = await web3.eth.net.getNetworkType();
+
+				await window.ethereum.enable();
+
+				const accounts = web3.eth.getAccounts()
+
+				const account = await accounts[0]
+
+				console.log("account if it is connecting or not  ", loggersAC)
+				if (loggersAC[0])
+				{
+					const respone = await handleSignMessage(loggersAC[0],currentNonce,web3);
+					console.log(JSON.stringify(respone));
+					$.ajax({
+						type: 'POST',
+						url: '/authNonce',
+						data: respone,
+						dataType: "json",
+						success: (response) => {
+							if (response.Success == "Success!") {
+								window.alert("Successful sign account");
+							}
+							else
+							{
+								window.alert("Oh no");
+								console.log(response.Success);
+							}
+						},
+						error: () => {
+							window.alert("NO OK SO MUCH");
+						}
+					})
+					return loggersAC[0];
+				}
+					
+
+				console.log("account if it is connecting or not  ", network)
+
+				if(typeof account !== 'undefined'){
+
+					dispatch(web3AccountLoaded(account))
+
+					return account
+
+				} else {
+
+					window.alert('Please login with MetaMask')
+
+					return null
+
+				}
+
+
+				//old
+				// if (!(window).ethereum) {
+				// 	window.alert('Please install MetaMask first.');
+				// 	return;
+				// }
+		
+				// if (!web3) {
+				// 	try {
+				// 		// Request account access if needed
+				// 		await (window).ethereum.enable();
+		
+				// 		// We don't know window.web3 version, so we use our own instance of Web3
+				// 		// with the injected provider given by MetaMask
+				// 		web3 = new Web3(window.ethereum);
+				// 	} catch (error) {
+				// 		window.alert('You need to allow MetaMask.');
+				// 		return;
+				// 	}
+				// }
+
+				// const accounts = ethereum.request({ method: 'eth_accounts' });
+				// console.log(JSON.stringify(accounts));
+				// // const coinbase = await web3.eth.getCoinbase();
+				// // if (!coinbase) {
+				// // 	window.alert('Please activate MetaMask first.');
+				// // 	return;
+				// // }
+		
+				// // const publicAddress = coinbase.toLowerCase();
+				// // console.log(publicAddress);
+				// return accounts;
+			};
+			//console.log("TRACK DATAAAAA: ",username, publicAddress, isSigned);
+			
+		  $('#MyButton').click(function(currentUsername, currentPublicAddress, web3){
+			console.log("DUOC ROI BAN OIOIOIOIO");
+			console.log(this);
+			console.log("web3?",JSON.stringify(web3));
+			console.log("Truoc khi goi funciton");
+			var accs = getAddress();
+			console.log(JSON.stringify(accs));
+
+
+			// const accounts = await ethereum.request({ method: 'eth_accounts' });
+			// console.log(JSON.stringify(accounts));
+
+			// var web3Instance = undefined;
+			// web3Instance = new web3(window.ethereum);
+
+			// if (!web3Instance) {
+			// 	try {
+			// 		// Request account access if needed
+			// 		await window.ethereum.enable();
+
+			// 		// We don't know window.web3 version, so we use our own instance of Web3
+			// 		// with the injected provider given by MetaMask
+			// 		web3Instance = new web3(window.ethereum);
+			// 	} catch (error) {
+			// 		window.alert('You need to allow MetaMask.');
+			// 		return;
+			// 	}
+			// }
+
+			// const coinbase = await web3Instance.eth.getCoinbase();
+			// if (!coinbase) {
+			// 	window.alert('Please activate MetaMask first.');
+			// 	return;
+			// }
+
+			//const browserPublicAddress = web3.eth.coinbase.toLowerCase();
+			//console.log("Public address ne: "+browserPublicAddress);
+
+			// // Check if user with current publicAddress is already present on back end
+			// fetch(`${process.env.REACT_APP_BACKEND_URL}/users?publicAddress=${publicAddress}`)
+			// .then(response => response.json())
+			// // If yes, retrieve it. If no, create it.
+			// .then(
+			// 	users => (users.length ? users[0] : this.handleSignup(publicAddress))
+			// )
+		  });
+		});
+		// test()
+		// {
+		// 	console.log("DUOC ROI BAN OI");
+		// }
+	  </script>
+</head>
+
+<body>
+	<div class="col-md-4 col-md-offset-4 form-card">
+		<div>
+			<p>Profile Detail</p>
+		</div>
+		<div>
+			<center>
+				<table class="table table-hover text-center">
+					<tr>
+						<td>Name </td>
+						<td>
+							<%= username %>
+						</td>
+					</tr>
+					<tr>
+						<td>Public Address </td>
+						<td>
+							<%= publicAddress %>
+						</td>
+					</tr>
+					<tr>
+						<td>Is Signed </td>
+						<td>
+							<%= isSigned %>
+						</td>
+					</tr>
+				</table>
+			</center>
+		</div>
+		<div class="abc" id="LangTable">
+			<a href="/logout">Logout</a>
+		</div>
+		<input type="button" value="SignAddress" id="MyButton" >
+	</div>
+	<%= JSON.stringify(username); %>
+	<%= JSON.stringify(web3); %>
+</body>
+
+</html>

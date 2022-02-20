@@ -1,29 +1,61 @@
-const express = require('express')
-const path = require('path')
-const moment = require('moment')
-const { HOST } = require('./src/constants')
-const db = require('./src/database')
+const express = require('express');
+const ejs = require('ejs');
+const path = require('path');
+const app = express();
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 const PORT = process.env.PORT || 5000
 
-const app = express()
-  .set('port', PORT)
-  .set('views', path.join(__dirname, 'views'))
-  .set('view engine', 'ejs')
+const MongoDBURI = 'mongodb+srv://toozoodata:toozooadmin@cluster.cpxf1.mongodb.net/toozoodata?retryWrites=true&w=majority'; //process.env.MONGO_URI || 'mongodb://localhost/ManualAuth';
 
-// Static public files
-app.use(express.static(path.join(__dirname, 'public')))
+mongoose.connect(MongoDBURI, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true
+});
 
-app.get('/', function(req, res) {
-  res.send('Get ready for OpenSea!');
-})
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+});
 
-app.get('/api/token/:token_id', function(req, res) {
-  const tokenId = parseInt(req.params.token_id).toString()
-  const tooZoo = db[tokenId]
-  res.send(tooZoo)
-})
+app.use(session({
+  secret: 'work hard',
+  resave: true,
+  saveUninitialized: false,
+  store: new MongoStore({
+    mongooseConnection: db
+  })
+}));
 
-app.listen(app.get('port'), function() {
-  console.log('Node app is running on port', app.get('port'));
-})
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(__dirname + '/views'));
+
+const index = require('./routes/index');
+app.use('/', index);
+
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+  const err = new Error('File Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// error handler
+// define as the last app.use callback
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.send(err.message);
+});
+
+// listen on port 3000
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Express app listening on port 3000');
+});
