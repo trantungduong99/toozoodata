@@ -106,7 +106,9 @@ router.get('/', (req, res, next) => {
 router.get('/api/token/:token_id', (req, res, next) => {
 	Metadata.findOne({ id: req.params.token_id }, (err, data) => {
 		if (!data) {
-			res.redirect('/');
+			const tokenId = parseInt(req.params.token_id).toString();
+			const tooZoo = db[tokenId];
+			res.send(tooZoo);
 		} else {
 			res.send(data);
 			// data = { "username": data.username, "publicAddress": data.publicAddress, "isSigned": data.isSigned , "nonce": data.nonce, "web3": Web3};
