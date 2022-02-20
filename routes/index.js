@@ -19,7 +19,7 @@ router.post('/register', (req, res, next) => {
 	let personInfo = req.body;
 
 	if (!personInfo.username || !personInfo.password || !personInfo.publicAddress) {
-		res.send();
+		res.send({ "Success": "Please fill full form." });
 	} else {
 		User.findOne({ username: personInfo.username }, (err, data) => {
 			if (!data) {
@@ -49,8 +49,10 @@ router.post('/register', (req, res, next) => {
 					});
 
 				}).sort({ _id: -1 }).limit(1);
+				console.log("Success");
 				res.send({ "Success": "You are regestered,You can login now." });
 			} else {
+				console.log("Account already exits");
 				res.send({ "Success": "Account name already used." });
 			}
 
