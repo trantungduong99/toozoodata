@@ -9,7 +9,7 @@ const MongoStore = require('connect-mongo')(session);
 
 const PORT = process.env.PORT || 5000
 
-const MongoDBURI = 'mongodb+srv://toozoodata:toozooadmin@cluster.cpxf1.mongodb.net/toozoodata?retryWrites=true&w=majority'; //process.env.MONGO_URI || 'mongodb://localhost/ManualAuth';
+const MongoDBURI = process.env.MONGODB_URI || 'mongodb+srv://toozoodata:toozooadmin@cluster.cpxf1.mongodb.net/toozoodata?retryWrites=true&w=majority'; //process.env.MONGO_URI || 'mongodb://localhost/ManualAuth';
 
 mongoose.connect(MongoDBURI, {
   useUnifiedTopology: true,
