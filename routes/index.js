@@ -770,19 +770,19 @@ router.get('/avatar/:attributeString', (req, res, next) => {
 	.composite(
 		[
 			{
-				input: getInput("legs",arrayAtt[2]),
+				input: getInput("legs",arrayAtt[3]),
 				top: 1200,
 				left: 1350,
 				blend: blendType,
 			},
 			{
-				input: getInput("hand",arrayAtt[4]),
+				input: getInput("hand",arrayAtt[2]),
 				top: 890,
 				left: 1500,
 				blend: blendType,
 			},
 			{
-				input: getInput("tail",arrayAtt[3]),
+				input: getInput("tail",arrayAtt[4]),
 				top: 1000,
 				left: 220,
 				blend: blendType,
@@ -794,7 +794,7 @@ router.get('/avatar/:attributeString', (req, res, next) => {
 				blend: blendType,
 			},
 			{
-				input: getInput("hand",arrayAtt[4]),
+				input: getInput("hand",arrayAtt[2]),
 				top: 895,
 				left: 1450,
 				blend: blendType,
@@ -806,17 +806,28 @@ router.get('/avatar/:attributeString', (req, res, next) => {
 				blend: blendType,
 			},
 			{
-				input: getInput("legs",arrayAtt[2]),
+				input: getInput("legs",arrayAtt[3]),
 				top: 1200,
 				left: 1160,
 				blend: blendType,
 			},
 		]
 	)
-	// .resize({width: 400, height: 400})
 	.png()
 	.toBuffer()
-	.then(data => res.type('png').send(data))
+	.then(function(data)
+	{
+		sharp(data)
+		.resize({width: 350, height: 350})
+		.png()
+		.toBuffer()
+		.then(data => res.type('png').send(data));
+	});
+	
+	// .resize({width: 400, height: 400})
+	// .png()
+	// .toBuffer()
+	// .then(data => res.type('png').send(data))
 });
 
 
