@@ -11,9 +11,462 @@
 	
 	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 	<script>
-		
+
+	const ABI = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "approved",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "ApprovalForAll",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "player",
+				"type": "address"
+			}
+		],
+		"name": "awardItem",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "domain",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getApproved",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			}
+		],
+		"name": "isApprovedForAll",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_data",
+				"type": "bytes"
+			}
+		],
+		"name": "safeTransferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			},
+			{
+				"internalType": "bool",
+				"name": "approved",
+				"type": "bool"
+			}
+		],
+		"name": "setApprovalForAll",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes4",
+				"name": "interfaceId",
+				"type": "bytes4"
+			}
+		],
+		"name": "supportsInterface",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+	]
+
+	const smAddress = "0xd2e52e588eb0cab69ca3289d60bde66406e238af";
+	var fatherId = -1;
+	var motherId = -1;
+	var isBreed = false;
+	const web3 = new Web3(window.ethereum);
+	window.ethereum.enable();
+	var toozoo = new web3.eth.Contract(ABI,smAddress);
+
+		async function mintToken(publicAddress){
+			try {
+			console.log("on mintToken function: ",publicAddress);
+			toozoo.methods.awardItem(publicAddress).send({ from: publicAddress })
+			//toozoo.methods.awardItem(publicAddress).call({from: publicAddress})
+			.then(function(data) {
+				console.log("mint data ne:");
+				console.log(data);
+				console.log("New token id: ");
+				let newTokenId = data.events.Transfer.returnValues.tokenId
+				console.log(fatherId, motherId, isBreed)
+				console.log(newTokenId);
+				if (isBreed)
+				{
+					$.ajax({
+						type: 'POST',
+						url: '/breedNewToken',
+						data: { tokenIdx: newTokenId , fatherIdx: fatherId, motherIdx: motherId},
+						dataType: "json",
+						success: (response) => {
+							if (response.errorCode == 0) {
+								window.alert("Breed success!" + JSON.stringify(response));
+								console.log(JSON.stringify(response));
+							}
+							else
+							{
+								window.alert("Oh no!" + JSON.stringify(response));
+								console.log(JSON.stringify(response));
+							}
+						},
+						error: () => {
+							window.alert("NO OK SO MUCH");
+						}
+					});
+					isBreed = false;
+					fatherId = -1;
+					motherId = -1;
+				}
+				else
+				{
+					$.ajax({
+						type: 'POST',
+						url: '/mintNewToken',
+						data: { tokenId: newTokenId},
+						dataType: "json",
+						success: (response) => {
+							if (response.errorCode == 0) {
+								window.alert("Mint success!" + JSON.stringify(response));
+								console.log(JSON.stringify(response));
+							}
+							else
+							{
+								window.alert("Oh no!" + JSON.stringify(response));
+								console.log(JSON.stringify(response));
+							}
+						},
+						error: () => {
+							window.alert("NO OK SO MUCH");
+						}
+					})	
+				}
+				return data.events.Transfer.returnValues.tokenId;
+			})
+			.catch(function(error)
+			{
+				console.log(error);
+				console.log("Cho nay bi loi roi nen khong send request ve serrrver nha");
+				return error;
+			});
+			} catch (err) {
+				console.log(JSON.stringify(err));
+				throw new Error('You need to sign the message to be able to log in.');
+			}
+		};
+
 		//handleSignMessage = async ({publicAddress,nonce	}: {publicAddress;nonce;}) => 
-		async function handleSignMessage(publicAddress,nonce,web3){
+		async function handleSignMessage(publicAddress,nonce){
 			try {
 			console.log("Data: ",publicAddress, nonce);
 			const signature = await web3.eth.personal.sign(
@@ -28,75 +481,34 @@
 			throw new Error('You need to sign the message to be able to log in.');
 			}
 		};
+
+		async function getAddress() {
+			// Check if MetaMask is installed
+			console.log("on getAddress function");
+			const loggersAC = await web3.eth.getAccounts(console.log);
+			const network = await web3.eth.net.getNetworkType();
+			const accounts = web3.eth.getAccounts()
+			const account = await accounts[0]
+			console.log("account if it is connecting or not logger", loggersAC)
+			if (loggersAC[0])
+			{
+				return loggersAC[0];
+			}
+			console.log("account if it is connecting or not network ", network)
+			if(typeof account !== 'undefined'){
+				dispatch(web3AccountLoaded(account))
+				return account
+			} else {
+				window.alert('Please login with MetaMask')
+				return null
+			}
+		};
 		//let web3Instance: Web3 | undefined = undefined; // Will hold the web3 instance
 		$(document).ready(function(){
 			var currentUserName = "<%= username %>";
 			var currentPublicAddress = "<%= publicAddress %>";
 			var currentNonce = "<%= nonce %>";
 			console.log("DATAA ", currentUserName, currentPublicAddress);
-			async function getAddress() {
-				// Check if MetaMask is installed
-		
-				console.log("AJKSHVJ");
-				await window.ethereum.enable();
-				const web3 = new Web3(window.ethereum);
-			
-
-				const loggersAC = await web3.eth.getAccounts(console.log);
-
-				const network = await web3.eth.net.getNetworkType();
-
-				await window.ethereum.enable();
-
-				const accounts = web3.eth.getAccounts()
-
-				const account = await accounts[0]
-
-				console.log("account if it is connecting or not  ", loggersAC)
-				if (loggersAC[0])
-				{
-					const respone = await handleSignMessage(loggersAC[0],currentNonce,web3);
-					console.log(JSON.stringify(respone));
-					$.ajax({
-						type: 'POST',
-						url: '/authNonce',
-						data: respone,
-						dataType: "json",
-						success: (response) => {
-							if (response.Success == "Success!") {
-								window.alert("Successful sign account");
-							}
-							else
-							{
-								window.alert("Oh no");
-								console.log(response.Success);
-							}
-						},
-						error: () => {
-							window.alert("NO OK SO MUCH");
-						}
-					})
-					return loggersAC[0];
-				}
-					
-
-				console.log("account if it is connecting or not  ", network)
-
-				if(typeof account !== 'undefined'){
-
-					dispatch(web3AccountLoaded(account))
-
-					return account
-
-				} else {
-
-					window.alert('Please login with MetaMask')
-
-					return null
-
-				}
-
-
 				//old
 				// if (!(window).ethereum) {
 				// 	window.alert('Please install MetaMask first.');
@@ -128,16 +540,57 @@
 				// // const publicAddress = coinbase.toLowerCase();
 				// // console.log(publicAddress);
 				// return accounts;
-			};
 			//console.log("TRACK DATAAAAA: ",username, publicAddress, isSigned);
 			
-		  $('#MyButton').click(function(currentUsername, currentPublicAddress, web3){
+		  $('#MyButton').click(function(){
 			console.log("DUOC ROI BAN OIOIOIOIO");
 			console.log(this);
-			console.log("web3?",JSON.stringify(web3));
-			console.log("Truoc khi goi funciton");
-			var accs = getAddress();
-			console.log(JSON.stringify(accs));
+			getAddress().then(function(windowAddrress)
+			{
+				console.log("Address get duoc de sign nonce ne: ",windowAddrress);
+				if (windowAddrress)
+				{
+					if (windowAddrress.toLowerCase() == currentPublicAddress.toLowerCase())
+					{
+						//tai khoan o Chrome dang la tk dang ky
+						console.log(windowAddrress," COMPARE ", currentPublicAddress);
+						handleSignMessage(windowAddrress,currentNonce)
+						.then(function(signData)
+						{
+							console.log("SIGNED DATA (PA&SIGNATURE): ",JSON.stringify(signData));
+							$.ajax({
+								type: 'POST',
+								url: '/authNonce',
+								data: signData,
+								dataType: "json",
+								success: (response) => {
+									if (response.Success == "Success!") {
+										window.alert("Successful sign account");
+									}
+									else
+									{
+										window.alert("Oh no!",response.Success);
+										console.log(response.Success);
+									}
+								},
+								error: () => {
+									window.alert("NO OK SO MUCH");
+								}
+							});
+						});
+					}
+					else
+					{
+						window.alert("Current metamask address is not account register");
+						console.log("Current metamask address is not account register");
+					}
+				}
+				else
+				{
+					window.alert("Please login metamask");
+					console.log("Please login metamask");
+				}
+			});
 
 
 			// const accounts = await ethereum.request({ method: 'eth_accounts' });
@@ -177,6 +630,145 @@
 			// 	users => (users.length ? users[0] : this.handleSignup(publicAddress))
 			// )
 		  });
+
+
+		  $('#Mint').click(function(currentUsername, web3){
+			console.log("Button Mint Work");
+			console.log(this);
+			getAddress().then(
+				function(windowAddress)
+				{
+					console.log("Get address then promise data: " , windowAddress);
+					if  (windowAddress)
+						console.log("Current metamask address when call getAddress: ",windowAddress);
+					if (windowAddress)
+					{
+						if (windowAddress.toLowerCase() == currentPublicAddress.toLowerCase())
+						{
+							// tai khoan hien tai trung voi tai khoan asdfasdf
+							console.log("MINT TOKEN TO ADDRESS NE ", windowAddress);
+							(async() => {
+							console.log('before start');
+
+							await mintToken(windowAddress)
+							.then(function(newTokenId)
+							{
+								console.log("New token id in callback front end: "+ newTokenId);
+								console.log("Send request new token to server");
+							})
+							.catch(function(error)
+							{
+								console.log(error);
+							});
+							
+							console.log('after start');
+							})();
+						}
+						else
+						{
+							window.alert("Current metamask address is not account register");
+							console.log("Current metamask address is not account register");
+						}
+					}
+					else
+					{
+						window.alert("Please login metamask");
+						console.log("Please login metamask");
+					}
+				}
+			);
+		  });
+
+
+		  $("#form").submit((event) => {
+				event.preventDefault();
+				let tempData = $('#form').serializeArray()
+				fatherId = tempData[0].value;
+				motherId = tempData[1].value;
+				console.log(JSON.stringify(tempData), fatherId, motherId);
+
+
+				toozoo.methods.ownerOf(fatherId).call()
+				.then(function(data) {
+					console.log("father address");
+					console.log(data);
+					toozoo.methods.ownerOf(motherId).call()
+					.then(function(datamt) {
+						console.log("mother address");
+						console.log(datamt);
+						if (data != datamt)
+						{
+							window.alert("You dont have ownership to both token");
+							return;
+						}
+						else
+						{
+							//request breed
+							$.ajax({
+							type: 'POST',
+							url: '/requestBreed',
+							data: $('#form').serialize(),
+							dataType: "json",
+							success: (response) => {
+								$('#form')[0].reset();
+								document.getElementById("check").innerHTML = response.message;
+								if (response.errorCode == 0){
+									isBreed = true;
+									getAddress().then(
+									function(windowAddress)
+									{
+										if (windowAddress)
+										{
+											if (windowAddress.toLowerCase() == currentPublicAddress.toLowerCase())
+											{
+												// tai khoan hien tai trung voi tai khoan asdfasdf
+												console.log("MINT TOKEN TO ADDRESS NE ", windowAddress);
+												(async() => {
+												await mintToken(windowAddress)
+												.then(function(newTokenId)
+												{
+												})
+												.catch(function(error)
+												{
+													console.log(error);
+												});
+												})();
+											}
+											else
+											{
+												window.alert("Current metamask address is not account register");
+												console.log("Current metamask address is not account register");
+											}
+										}
+										else
+										{
+											window.alert("Please login metamask");
+											console.log("Please login metamask");
+										}
+									});
+								}
+								else
+								{
+									window.alert("Invalid Gender");
+								};
+							},
+							error: () => {
+							}
+							})
+						}
+					})
+					.catch(function(error)
+					{
+						console.log(error);
+					});						
+				})
+				.catch(function(error)
+				{
+					console.log(error);
+				});
+
+				
+			});
 		});
 		// test()
 		// {
@@ -218,9 +810,29 @@
 			<a href="/logout">Logout</a>
 		</div>
 		<input type="button" value="SignAddress" id="MyButton" >
+
+		<input type="button" value="Mint A TooZoo" id="Mint" >
 	</div>
 	<%= JSON.stringify(username); %>
 	<%= JSON.stringify(web3); %>
+
+	<div class="col-md-4 col-md-offset-4 form-card">
+		<div>
+			<p>Breed</p>
+		</div>
+		<div class="form-group ">
+			<form id="form" method="post">
+				<input type="text" name="fatherId" placeholder="fatherId" required="" class="form-control"><br />
+				<input type="text" name="motherId" placeholder="motherId" required="" class="form-control"><br />
+				<input type="submit" value="Breed" class="btn btn-success">
+			</form>
+		</div>
+		<div class="mssg bg-danger">
+			<span id="check"></span>
+		</div>
+		<div id="LangTable"><a href="/profile" id="aa"></a>
+		</div>
+	</div>
 </body>
 
 </html>
