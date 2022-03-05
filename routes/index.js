@@ -4,16 +4,60 @@ const User = require('../models/user');
 const Metadata = require('../models/metadata');
 const Web3 = require('web3');
 const ethUtil = require('ethereumjs-util');
+const sharp = require('sharp');
 
+// @ts-ignore
+//const sdk = require('api')('@opensea/v1.0#1j3wv35kyd6wqwc'); 
 const https = require('https');
 
 const contractAddress = '0xd2e52e588eb0cab69ca3289d60bde66406e238af';
+
+const urlAvatar = "https://toozoodata.herokuapp.com/avatar/";
 //const EtherUtil = require('ethereumjs-util');
+
+let listAttributeRemove = ["id","num_sales","background_color","image_url","image_preview_url","image_thumbnail_url","image_original_url","animation_url","animation_original_url",
+"external_link","asset_contract","permalink","collection","owner","creator","decimals","token_metadata","sell_orders","last_sale","top_bid","listing_date","is_presale","transfer_fee_payment_token","transfer_fee"];
+let listTraitsAttributeRemove = ["display_type","max_value","trait_count","order"];
+let valueAttribute = {
+	"water": 0,
+	"fire": 1,
+	"wind": 2,
+	"earth": 3,
+	"lighing": 4,
+	"male": 1,
+	"female": 0
+};
+
+let part = {
+	"base" : 0,   // change to body
+	"head" : 1,
+	"back" : 2,
+	"legs" : 3,
+	"tail" : 4
+}
+
+let partById = {
+	0 : "base",   // change to body
+	1 : "head",
+	2 : "back",
+	3 : "legs",
+	4 : "tail"
+}
+
+let attributeId = {
+	0: "water",
+	1: "fire",
+	2: "wind",
+	3: "earth",
+	4: "lighing"
+}
 
 router.get('/register', (req, res, next) => {
 	return res.render('index.ejs');
 });
 
+let cacheFather = undefined;
+let cacheMother = undefined;
 
 router.post('/register', (req, res, next) => {
 	let personInfo = req.body;
@@ -126,8 +170,10 @@ router.post('/authNonce', (req, res, next) => {
 		User.findOne({ publicAddress: req.body.publicAddress }, (err, data) => {
 		if (data) {
 			if (data.isSigned)
-				return res.send({ "Success": "Account address already signed!" });
-
+			{
+				console.log("Account address already signed!");
+				return res.send({"Success": "Account address already signed!"});
+			}
 
 			var message = `I am signing my one-time nonce: ${data.nonce}`;
 			const msg = new Buffer.from(message);
@@ -187,31 +233,297 @@ router.post('/authNonce', (req, res, next) => {
 	});
 });
 
-let listAttributeRemove = ["id","num_sales","background_color","image_url","image_preview_url","image_thumbnail_url","image_original_url","animation_url","animation_original_url",
-"external_link","asset_contract","permalink","collection","owner","creator","decimals","token_metadata","sell_orders","last_sale","top_bid","listing_date","is_presale","transfer_fee_payment_token","transfer_fee"];
-let listTraitsAttributeRemove = ["display_type","max_value","trait_count","order"];
-let valueAttribute = {
-	"water": 0,
-	"fire": 1,
-	"wind": 2,
-	"earth": 3,
-	"lighing": 4,
-	"male": 1,
-	"female": 0
-};
+router.post('/requestBreed', (req, res, next) => {
+	console.log("???");
+	console.log("requestBreed");
+	let fatherId = req.body.fatherId;
+	let motherId = req.body.motherId;
+	console.log(fatherId, motherId);
 
-let part = {
-	"base" : 0,   // change to body
-	"head" : 1,
-	"back" : 2,
-	"legs" : 3,
-	"tail" : 4
-}
+	// let url = 'https://testnets-api.opensea.io/api/v1/asset/'+ '0xd2e52e588eb0cab69ca3289d60bde66406e238af/' + fatherId.toString();
+	// https.get(url,(responeData) => {
+	// 	let body = "";
+	// 	responeData.on("data", (chunk) => {
+	// 	body += chunk;
+	// 	});
+	// 	responeData.on("end", () => {
+	// 	try {
+	// 		let json = JSON.parse(body);
+	// 		// do something with JSON
+	// 		console.log("Father Data: ");
+	// 		console.log(json);
+	// 		if (json.success == false)
+	// 		{
+	// 			res.send({errorCode: 2, message: "Invalid Id"});
+	// 		}
+	// 		else
+	// 		{
+	// 			let urlmt = 'https://testnets-api.opensea.io/api/v1/asset/'+ '0xd2e52e588eb0cab69ca3289d60bde66406e238af/' + motherId.toString();
+	// 			https.get(urlmt,(responeDataMt) => {
+	// 				let bodymt = "";
+	// 				responeDataMt.on("data", (chunk) => {
+	// 				bodymt += chunk;
+	// 				});
+	// 				responeDataMt.on("end", () => {
+	// 				try {
+	// 					let jsonmt = JSON.parse(bodymt);
+	// 					// do something with JSON
+	// 					console.log("Mother Data: ");
+	// 					console.log(jsonmt);
+	// 					if (jsonmt.success == false)
+	// 					{
+	// 						res.send({errorCode: 2, message: "Invalid Id"});
+	// 					}
+	// 					else
+	// 					{
+	// 						if (json.owner.address != jsonmt.owner.address)
+	// 						{
+	// 							res.send({errorCode: 3, message: "You not have ownership to both token"});
+	// 						}
+	// 						else
+	// 						{
+	// 							if (json.traits[5].value == jsonmt.traits[5].value)
+	// 							{
+	// 								res.send({errorCode: 1, message: "Invalid gender"});
+	// 							}
+	// 							else
+	// 							{
+	// 								console.log("OKE RROOIFOIOF");
+	// 								res.send({ errorCode : 0, message: "OK, let's Breed"});
+	// 								Metadata.find({ id: {"$in" : 
+	// 									[({fatherId}), 
+	// 									({motherId})
+	// 									]
+	// 								}})
+	// 								.then(function(data)
+	// 								{
+	// 									console.log("Metadata: ");
+	// 									console.log(data);
+	// 								});
+	// 							}
+	// 						}
+	// 					}
+	// 				} catch (errormt) {
+	// 					console.error(errormt.message);
+	// 				};
+	// 				});
+
+	// 			}).on("error", (errormt) => {
+	// 				console.error(errormt.message);
+	// 			});
+	// 		}
+	// 	} catch (error) {
+	// 		console.error(error.message);
+	// 	};
+	// 	});
+
+	// }).on("error", (error) => {
+	// 	console.error(error.message);
+	// });
+	
+	// sdk['retrieving-a-single-asset-testnets']({
+	// asset_contract_address: contractAddress,
+	// token_id: fatherId.toString()
+	// })
+	// .then(function(res){
+	// 	console.log("Owner: ");
+	// 	console.log(res.owner.address);
+	// 	console.log("Gender: ");
+	// 	console.log(res.traits[5].value);
+	// 	sdk['retrieving-a-single-asset-testnets']({
+	// 		asset_contract_address: contractAddress,
+	// 		token_id: motherId.toString()
+	// 		})
+	// 		.then(function(resMt){
+	// 			console.log("Owner: ");
+	// 			console.log(resMt.owner.address);
+	// 			console.log("Gender: ");
+	// 			console.log(resMt.traits[5].value);
+
+	// 			if (res.owner.address == resMt.owner.address)
+	// 			{
+	// 				// same owner
+	// 				if (res.traits[5].value != resMt.traits[5].value)
+	// 				{
+	// 					// gender ok
+	// 					console.log("OK ROIF");
+	//  					//res.send({ errorCode : 0, message: "OK, let's Breed"});					
+	// 				}
+	// 				else
+	// 				{
+	// 					res.send({ errorCode : 1, message: "Invalid gender"});
+	// 				}
+	// 			}
+	// 			else
+	// 			{
+	// 				res.send({errorCode: 3, message: "You not have ownership to both token"});
+	// 			}
+	// 		})
+	// 		.catch(errMt => {console.error(errMt);res.send({errorCode: 2, message: "Invalid Id"});});
+	// })
+	// .catch(err => {console.error(err),res.send({errorCode: 2, message: "Invalid Id"});});
+
+	Metadata.findOne({ id: fatherId }, (err, data) => {
+		if (data) {			
+			if (data.attributes[5].value == "female")
+			{
+				res.send({ errorCode : 1, message: "Invalid gender"});
+			}
+			else
+			{
+				Metadata.findOne({ id: motherId }, (err, dataMother) => {
+					if (dataMother) {
+						if (dataMother.attributes[5].value == "male")
+						{
+							res.send({ errorCode : 1, message: "Invalid gender"});
+						}
+						else
+						{
+							res.send({ errorCode : 0, message: "OK, let's Breed"});
+						}
+					} else {
+						res.send({errorCode: 2, message: "Invalid Id"});
+					}
+				});
+			}
+		} else {
+			res.send({errorCode: 2, message: "Invalid Id"});
+		}
+	});
+});
+
+router.post('/breedNewToken', (req, res, next) => {
+	console.log(' Breed New ToKennnnnnnnn', JSON.stringify(req.body));
+	let newTokenId = req.body.tokenIdx;
+	let fatherId = req.body.fatherIdx;
+	let motherId = req.body.motherIdx;
+	Metadata.findOne({ id: fatherId }, (err, data) => {
+		if (data) {			
+			Metadata.findOne({ id: motherId }, (err, dataMother) => {
+				if (dataMother) {
+					arrayTraits = [];
+					let urlImg = urlAvatar;
+					let randomGen = [];
+					let sum = 0;
+					while (sum == 0 || sum == 5)
+					{
+						sum = 0;
+						for (let i = 0; i < 5; i++)
+						{
+							randomGen.push(Math.floor(Math.random() * 2));
+							sum+= randomGen[i];
+						}
+					}
+					
+					for (let i = 0; i < 5; i++)
+					{
+						let attributeValue = (randomGen[i] == 0)?dataMother.attributes[i].value:data.attributes[i].value;
+						urlImg+= valueAttribute[attributeValue];
+						let attribute = {
+							trait_type: partById[i],
+							value: attributeValue
+						}
+						arrayTraits.push(attribute);
+					}
+					let gender = Math.floor(Math.random()*2);
+					let tempGender = (gender == 1)?"male":"female";
+					urlImg+= gender;
+					arrayTraits.push({
+						trait_type: "gender",
+						value: tempGender
+					});
+					arrayTraits.push({
+						trait_type: "personality",
+						value: fatherId + "_S2_" + motherId
+					});
+					let newToken = new Metadata({
+						id: newTokenId,  //new token id
+						attributes: arrayTraits,
+						description: "New TooZoo token id: " + newTokenId + "\n **Child of:** " + fatherId.toString() + " and " + motherId.toString(),
+						image: urlImg,
+						name: "TooZoo #"+newTokenId
+					});
+					newToken.save((err, token) => {
+						if (err)
+						{
+							console.log(err);
+							res.send({ errorCode : 1, message: "Error in save item database"});
+						}
+						else
+						{
+							console.log('Success roi:', newTokenId);
+							console.log(JSON.stringify(newToken));
+							res.send({ errorCode : 0, message: "Da mint 1 item moi", newTokenData : newToken});
+						}
+					});
+				}
+			});
+		}
+	});
+});
+
+
+router.post('/mintNewToken', (req, res, next) => {
+	console.log(' Mint New ToKennnnnnnnn', JSON.stringify(req.body));
+		let newTokenId = req.body.tokenId;
+		Metadata.findOne({ id: newTokenId }, (err, data) => {
+		if (data) {
+			res.send({ errorCode : 0, message: "Da mint item co san"});
+		} else {
+			arrayTraits = [];
+			let urlImg = urlAvatar;
+			for (let i = 0; i < 5; i++)
+			{
+				let attributeIndex = Math.floor(Math.random() * 5);
+				urlImg+=attributeIndex;
+				let attributePart = attributeId[attributeIndex]
+				let attribute = {
+					trait_type: partById[i],
+					value: attributePart
+				}
+				arrayTraits.push(attribute);
+			}
+			let randomGender = Math.floor(Math.random()*2);
+			let tempGender = (randomGender == 1)?"male":"female";
+			urlImg+=randomGender;
+			arrayTraits.push({
+				trait_type: "gender",
+				value: tempGender
+			});
+			arrayTraits.push({
+				trait_type: "personality",
+				value: "Normal"
+			});
+
+			let newToken = new Metadata({
+				id: newTokenId,  //new token id
+				attributes: arrayTraits,
+				description: "New TooZoo token id: " + newTokenId,
+				image: urlImg,
+				name: "TooZoo #"+newTokenId
+			});
+			newToken.save((err, token) => {
+				if (err)
+				{
+					console.log(err);
+					res.send({ errorCode : 1, message: "Error in save item database"});
+				}
+				else
+				{
+					console.log('Success roi:', newTokenId);
+					console.log(JSON.stringify(newToken));
+					res.send({ errorCode : 0, message: "Da mint 1 item moi", newTokenData : newToken});
+				}
+			});
+		}
+	});
+});
+
 
 router.get('/getTroopData', (req, res, next) => {
 	console.log(JSON.stringify(req.query.publicAddress)," get troop data");
 
-	let url = 'https://testnets-api.opensea.io/api/v1/assets?owner=' + req.query.publicAddress + '&asset_contract_address=0xd2e52e588eb0cab69ca3289d60bde66406e238af&order_direction=desc&offset=0&limit=20';
+	let url = 'https://testnets-api.opensea.io/api/v1/assets?owner=' + req.query.publicAddress + '&asset_contract_address=' + contractAddress + '&order_direction=desc&offset=0&limit=20';
 
 	// https.get(url,(responeData) => {
 	// 	let body = "";
@@ -286,18 +598,25 @@ router.get('/getTroopData', (req, res, next) => {
 });
 
 router.get('/loginGame', (req, res, next) => {
-	console.log(JSON.stringify(req.query.username)," login game");
 	let login = {};
 	login.errorCode = 0;
 	User.findOne({ username: req.query.username }, (err, data) => {
 		if (!data) {
 			login.errorCode = 1;
 			res.send(login);
+			return;
 		} else {
+			if (data.password.toString() !== req.query.password.toString())
+			{
+				login.errorCode = 1;
+				res.send(login);
+				return;
+			}
 			if (!data.isSigned)
 			{
 				login.errorCode = 2;
 				res.send(login);
+				return;
 			}
 			else
 			{
@@ -316,7 +635,6 @@ router.get('/loginGame', (req, res, next) => {
 					responeData.on("end", () => {
 					try {
 						let json = JSON.parse(body);
-						console.log(json);
 						for (let a in json["assets"])
 						{
 							for (let i = 0; i < listAttributeRemove.length; i++)
@@ -431,6 +749,75 @@ router.post('/forgetpass', (req, res, next) => {
 
 });
 
+async function compositeImages() {
+
+}
+
+function getInput(part,id)
+{
+	return "images/" + part + id + ".png";
+}
+
+router.get('/avatar/:attributeString', (req, res, next) => {
+	console.log("Get avatar of id: ",req.params.attributeString);
+	let arrayAtt = [];
+	for (var i = 0; i < req.params.attributeString.length; i ++)
+	{
+		arrayAtt.push(req.params.attributeString[i]);
+	}
+	let blendType = (arrayAtt[5] == 1)?"over":"soft-light";
+	sharp("images/zbackground.png")
+	.composite(
+		[
+			{
+				input: getInput("legs",arrayAtt[2]),
+				top: 1200,
+				left: 1350,
+				blend: blendType,
+			},
+			{
+				input: getInput("hand",arrayAtt[4]),
+				top: 890,
+				left: 1500,
+				blend: blendType,
+			},
+			{
+				input: getInput("tail",arrayAtt[3]),
+				top: 1000,
+				left: 220,
+				blend: blendType,
+			},
+			{
+				input: getInput("body",arrayAtt[0]),
+				top: 400,
+				left: 980,
+				blend: blendType,
+			},
+			{
+				input: getInput("hand",arrayAtt[4]),
+				top: 895,
+				left: 1450,
+				blend: blendType,
+			},
+			{
+				input: getInput("head",arrayAtt[1]),
+				top: 370,
+				left: 1530,
+				blend: blendType,
+			},
+			{
+				input: getInput("legs",arrayAtt[2]),
+				top: 1200,
+				left: 1160,
+				blend: blendType,
+			},
+		]
+	)
+	// .resize({width: 400, height: 400})
+	.png()
+	.toBuffer()
+	.then(data => res.type('png').send(data))
+});
 
 
 module.exports = router;
