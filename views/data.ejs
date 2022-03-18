@@ -630,7 +630,12 @@
 			// 	users => (users.length ? users[0] : this.handleSignup(publicAddress))
 			// )
 		  });
-
+		
+		  $('#MyCollection').click(function(currentUsername, web3){
+			console.log("Button My Collection Work");
+			var url = "https://testnets.opensea.io/"+currentPublicAddress+"?search[query]=Testgame%20V3";
+			window.open(url, "My Collection");
+		  });
 
 		  $('#Mint').click(function(currentUsername, web3){
 			console.log("Button Mint Work");
@@ -812,6 +817,8 @@
 		<input type="button" value="SignAddress" id="MyButton" >
 
 		<input type="button" value="Mint A TooZoo" id="Mint" >
+
+		<input type="button" value="My Collection" id="MyCollection" >
 	</div>
 	<%= JSON.stringify(username); %>
 	<%= JSON.stringify(web3); %>

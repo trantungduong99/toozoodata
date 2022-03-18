@@ -150,7 +150,8 @@ router.get('/', (req, res, next) => {
 //app.use(express.static(path.join(__dirname, 'public')))
 
 router.get('/api/token/:token_id', (req, res, next) => {
-	Metadata.findOne({ id: req.params.token_id }, (err, data) => {
+	const tokenId = parseInt(req.params.token_id);
+	Metadata.findOne({ id: tokenId }, (err, data) => {
 		if (!data) {
 			const tokenId = parseInt(req.params.token_id).toString();
 			const tooZoo = db[tokenId];
